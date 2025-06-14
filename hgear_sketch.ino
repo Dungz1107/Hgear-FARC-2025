@@ -13,12 +13,18 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define MOTOR_3_CHANNEL_B 13
 #define MOTOR_4_CHANNEL_A 14 //hook
 #define MOTOR_4_CHANNEL_B 15
+
 #define PS2_DAT 12 // MISO
 #define PS2_CMD 13 // MOSI
 #define PS2_SEL 15 // SS
 #define PS2_CLK 14 // SLK
+
 #define pressures false
 #define rumble false
+
+#define SERVO_1_CHANNEL 7
+
+#define NOTIFY_LED 13
 
 #define MAX_SPEED    2048
 
@@ -60,14 +66,19 @@ void setHookSpeed(int speedR4){
   }
 }
 
+void setServo(uint8_t channel, uint16_t pulse) {
+  pwm.setPWM(channel, 0, pulse);
+}
+
 PS2X ps2x; // khởi tạo class PS2x
 
 void setup()
 {
   pwm.begin();
-    pwm.setOscillatorFrequency(27000000); 
+  pwm.setOscillatorFrequency(27000000); 
   pwm.setPWMFreq(50);
-
+  pinMode(NOTIFY_LED, OUTPUT); 
+  
   Serial.begin(115200);
   Serial.print("Ket noi voi tay cam PS2:");
 
@@ -116,16 +127,20 @@ void loop()
   }
 
   if(ps2x.Button(PSB_L1)){
-    setHookSpeed(4095);
+    setHookSpeed(1024);
   }
   else if(ps2x.Button(PSB_L2)){
-    setHookSpeed(-4095);
+    setHookSpeed(-1024);
   }
   else{
     setHookSpeed(0);
   }
+
+  setServo(7, 0);
+  if(ps2x.Button(PSB_TRIANGLE)){
+    setServo(7, 1000);
+  }
+  else if(ps2x.Button(PSB_CROSS)){
+    setServo(7,0);
+  }
 }
-}
-
-
-
