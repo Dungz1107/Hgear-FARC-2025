@@ -11,6 +11,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define MOTOR_2_CHANNEL_B 11
 #define MOTOR_3_CHANNEL_A 12 //slide
 #define MOTOR_3_CHANNEL_B 13
+#define MOTOR_4_CHANNEL_A 14 //hook
+#define MOTOR_4_CHANNEL_B 15
 #define PS2_DAT 12 // MISO
 #define PS2_CMD 13 // MOSI
 #define PS2_SEL 15 // SS
@@ -45,6 +47,16 @@ void setSlideSpeed(int speedR3){
   } else {
     pwm.setPin(MOTOR_3_CHANNEL_A, 0);
     pwm.setPin(MOTOR_3_CHANNEL_B, abs(speedR3));
+  }
+}
+
+void setHookSpeed(int speedR4){
+  if (speedR4 >= 0) {
+    pwm.setPin(MOTOR_4_CHANNEL_A, speedR4);
+    pwm.setPin(MOTOR_4_CHANNEL_B, 0);
+  } else {
+    pwm.setPin(MOTOR_4_CHANNEL_A, 0);
+    pwm.setPin(MOTOR_4_CHANNEL_B, abs(speedR4));
   }
 }
 
@@ -93,15 +105,26 @@ void loop()
   int rightspeed = map(ps2x.Analog(PSS_RY), 0, 255, MAX_SPEED, -MAX_SPEED);
   setMotorSpeed(leftspeed, -rightspeed);
 
-  if(ps2x.Button(PSB_TRIANGLE)){
+  if(ps2x.Button(PSB_R1)){
     setSlideSpeed(-4095);
   } 
-  else if(ps2x.Button(PSB_CROSS)){
+  else if(ps2x.Button(PSB_R2)){
     setSlideSpeed(4095);
   }
   else{
     setSlideSpeed(0);
   }
+
+  if(ps2x.Button(PSB_L1)){
+    setHookSpeed(4095);
+  }
+  else if(ps2x.Button(PSB_L2)){
+    setHookSpeed(-4095);
+  }
+  else{
+    setHookSpeed(0);
+  }
+}
 }
 
 
