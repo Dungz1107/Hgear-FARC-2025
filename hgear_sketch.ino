@@ -28,6 +28,9 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 #define MAX_SPEED    2048
 
+const int journeyButton = 36; 
+int value = 0; 
+
 void setMotorSpeed(int speedR1, int speedR2) {
   if (speedR1 >= 0) {
     pwm.setPin(MOTOR_1_CHANNEL_A, speedR1);
@@ -78,6 +81,7 @@ void setup()
   pwm.setOscillatorFrequency(27000000); 
   pwm.setPWMFreq(50);
   pinMode(NOTIFY_LED, OUTPUT); 
+  pinMode(journeyButton, INPUT);
   
   Serial.begin(115200);
   Serial.print("Ket noi voi tay cam PS2:");
@@ -110,17 +114,21 @@ void setup()
 
 void loop()
 {
+  value = digitalRead(journeyButton);
   ps2x.read_gamepad(0, 0);
 
   int leftspeed = map(ps2x.Analog(PSS_LY), 0, 255, MAX_SPEED, -MAX_SPEED);
   int rightspeed = map(ps2x.Analog(PSS_RY), 0, 255, MAX_SPEED, -MAX_SPEED);
   setMotorSpeed(leftspeed, -rightspeed);
 
-  if(ps2x.Button(PSB_R1)){
+  if(ps2x.Button(PSB_R1) && value == LOW){
     setSlideSpeed(-4095);
   } 
   else if(ps2x.Button(PSB_R2)){
     setSlideSpeed(4095);
+  }
+  else if(value == HIGH){
+    setSlideSpeed(0);
   }
   else{
     setSlideSpeed(0);
@@ -138,7 +146,7 @@ void loop()
 
   setServo(7, 0);
   if(ps2x.Button(PSB_TRIANGLE)){
-    setServo(7, 1000);
+    setServo(7, 5000);
   }
   else if(ps2x.Button(PSB_CROSS)){
     setServo(7,0);
